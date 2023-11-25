@@ -11,11 +11,13 @@ import {
 import { ExtendedUser } from "../middlewares/verifyToken";
 import { v4 } from "uuid";
 import { log } from "console";
+import { execute, query } from "../services/dbhelper";
+import { hashPass } from "../services/hashPassword";
 
 //register user
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    let { userName, email, password } = req.body;
+    let { userName, email, password, cohortnumber } = req.body;
 
     let { error } = userRegisterValidationSchema.validate(req.body);
 
@@ -24,34 +26,39 @@ export const registerUser = async (req: Request, res: Response) => {
     }
 
     let userID = v4();
-    const hashedPwd = await bcrypt.hash(password, 5);
+    const hashedPwd = await hashPass(password)
 
     const pool = await mssql.connect(sqlConfig);
 
-    const checkEmailQuery = `SELECT 1 FROM Users WHERE email = @email`;
-    const emailCheckResult = await pool
-      .request()
-      .input("email", mssql.VarChar, email)
-      .query(checkEmailQuery);
+    const result = await execute("getSingleUser", {email});
 
-    if (emailCheckResult.recordset.length > 0) {
+    const emailCheckResult =
+      result.recordset && result.recordset.length > 0
+        ? result.recordset[0]
+        : undefined;
+
+    if (emailCheckResult) {
       return res
         .status(400)
         .json({ error: "Email already exists. User not registered." });
     }
 
-    const data = await pool
-      .request()
-      .input("userID", mssql.VarChar, userID)
-      .input("userName", mssql.VarChar, userName)
-      .input("email", mssql.VarChar, email)
-      .input("password", mssql.VarChar, hashedPwd)
-      .execute("registerUsers");
+
+    
+     await execute("registerUsers", {
+      userID,
+      userName,
+      email,
+      cohortnumber,
+      password: hashedPwd,
+    });
 
     return res.status(200).json({
       message: "User registered successfully",
     });
   } catch (error) {
+    console.log(error);
+    
     return res.json({
       error: error,
     });

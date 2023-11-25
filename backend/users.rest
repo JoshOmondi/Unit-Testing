@@ -1,0 +1,9 @@
+POST http://localhost:3500/user/register
+Content-Type: application/json
+
+{
+    "userName":"joshua ochien", 
+    "email":"joshua.ochien@thejitu.com",
+    "password":"@Qwerty123",
+    "cohortnumber": "24"
+}

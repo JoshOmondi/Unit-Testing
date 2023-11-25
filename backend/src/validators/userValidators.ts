@@ -7,7 +7,7 @@ export const userRegisterValidationSchema = joi.object({
     .email()
     .regex(/^[a-zA-Z]+.[a-zA-Z]+@thejitu.com$/)
     .required(),
-  cohortNumber: Joi.number().integer().min(1).required(),
+  cohortnumber: Joi.number().integer().min(1).required(),
   password: joi
     .string()
     .required()

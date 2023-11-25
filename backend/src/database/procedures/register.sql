@@ -14,7 +14,7 @@ BEGIN
         -- DECLARE @userID UNIQUEIDENTIFIER = NEWID();
         
         INSERT INTO Users (userID, userName,  email, cohortnumber, password)
-        VALUES (@userID, @userName, @email,cohortnumber, @password);
+        VALUES (@userID, @userName, @email,@cohortnumber, @password);
     END
     ELSE
     BEGIN
